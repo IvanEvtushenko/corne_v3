@@ -6,56 +6,18 @@
 #define NAV 1
 #define SYM 2
 #define ADJ 3
-#define EXTRA 4
+
+#define BTAB    &browsertab
+#define CAPS    &caps_word
+#define SUNL    &studio_unlock
+#define BOOT    &bootloader
+#define BT0     &bt BT_SEL 0
+#define BT1     &bt BT_SEL 1
+#define BT2     &bt BT_SEL 2
+#define BTC     &bt BT_CLR
+#define BTCA    &bt BT_CLR_ALL
 
 / {
-    behaviors {
-        hm: homerow_mods {
-            compatible = "zmk,behavior-hold-tap";
-            label = "HOMEROW_MODS";
-            #binding-cells = <2>;
-            tapping-term-ms = <150>;
-            quick_tap_ms = <0>;
-            flavor = "tap-preferred";
-            bindings = <&kp>, <&kp>;
-
-            quick-tap-ms = <180>;
-            global-quick-tap;
-        };
-
-        para: para {
-            compatible = "zmk,behavior-tap-dance";
-            label = "PARA";
-            #binding-cells = <0>;
-            bindings = <&kp LEFT_PARENTHESIS>, <&kp RIGHT_PARENTHESIS>;
-        };
-
-        caps: caps {
-            compatible = "zmk,behavior-caps-word";
-            label = "CAPS";
-            #binding-cells = <0>;
-            continue-list = <MINUS BACKSPACE>;
-        };
-
-        paraless: paraless {
-            compatible = "zmk,behavior-mod-morph";
-            label = "PARALESS";
-            bindings = <&kp LEFT_PARENTHESIS>, <&kp LESS_THAN>;
-
-            #binding-cells = <0>;
-            mods = <(MOD_LSFT)>;
-        };
-
-        paragreat: paragreat {
-            compatible = "zmk,behavior-mod-morph";
-            label = "PARAGREAT";
-            bindings = <&kp RIGHT_PARENTHESIS>, <&kp GREATER_THAN>;
-
-            #binding-cells = <0>;
-            mods = <(MOD_LSFT)>;
-        };
-    };
-
     macros {
         browsertab: browsertab {
             compatible = "zmk,behavior-macro";
@@ -68,85 +30,89 @@
                 <&macro_release>,
                 <&kp LCTRL>;
         };
-
     };
-
-    //
 
     keymap {
         compatible = "zmk,keymap";
 
-        // ───────────────────────────── Base ─────────────────────────────
-        // | ESC  |  Q  |  W  |  E  |  R  |  T  | |  Y  |  U  |  I  |  O  |  P  | BKSP |
-        // | TAB  |  A  |  S  |  D  |  F  |  G  | |  H  |  J  |  K  |  L  |  ;  |  '   |
-        // |LCTRL |  Z  |  X  |  C  |  V  |  B  | |  N  |  M  |  ,  |  .  |  /  | RSHFT|
-        // | RSHFT | MO1 | SPACE |                  |  RET | MO2 | LALT |
+        // ──────────────────────────────── BASE ────────────────────────────────
+        // ┌─────┬─────┬─────┬─────┬─────┬─────┐    ┌─────┬─────┬─────┬─────┬─────┬─────┐
+        // │ ESC │  Q  │  W  │  E  │  R  │  T  │    │  Y  │  U  │  I  │  O  │  P  │BSPC │
+        // │ TAB │  A  │  S  │  D  │  F  │  G  │    │  H  │  J  │  K  │  L  │  ;  │  '  │
+        // │LCTL │  Z  │  X  │  C  │  V  │  B  │    │  N  │  M  │  ,  │  .  │  /  │RSFT │
+        // └─────┴─────┴─────┼─────┼─────┼─────┤    ├─────┼─────┼─────┼─────┴─────┴─────┘
+        //                   │ GUI │ NAV │ SPC │    │ ENT │ SYM │ ALT │
+        //                   └─────┴─────┴─────┘    └─────┴─────┴─────┘
         DEF {
             display-name = "Base";
-
             bindings = <
-                &kp ESC     &kp Q     &kp W      &kp E      &kp R      &kp T          &kp Y      &kp U      &kp I      &kp O      &kp P        &kp BACKSPACE
-                &kp TAB     &kp A     &kp S      &kp D      &kp F      &kp G          &kp H      &kp J      &kp K      &kp L      &kp SEMI     &kp SQT
-                &kp LCTRL   &kp Z     &kp X      &kp C      &kp V      &kp B          &kp N      &kp M      &kp COMMA  &kp DOT    &kp FSLH     &kp RSHFT
-                                              &kp RSHFT     &mo 1      &kp SPACE      &kp RET    &mo 2      &kp LEFT_ALT
+&kp ESC      &kp Q        &kp W        &kp E        &kp R        &kp T            &kp Y        &kp U        &kp I        &kp O        &kp P        &kp BSPC
+&kp TAB      &kp A        &kp S        &kp D        &kp F        &kp G            &kp H        &kp J        &kp K        &kp L        &kp SEMI     &kp SQT
+&kp LCTRL    &kp Z        &kp X        &kp C        &kp V        &kp B            &kp N        &kp M        &kp COMMA    &kp DOT      &kp FSLH     &kp RSHFT
+                                       &kp LGUI     &mo NAV      &kp SPACE        &kp RET      &mo SYM      &kp LALT
             >;
         };
 
-        // ─────────────────────────── NavNum ────────────────────────────
-        // | TRNS |  1  |  2  |  3  |  4  |  5  | |  6  |  7  |  8  |  9  |  0  | DEL  |
-        // | CAPS | TRN | TRN |  ↑  | TAB | PgUp| |  0  |  4  |  5  |  6  | TRN | TRN  |
-        // | TRNS | TRN |  ←  |  ↓  |  →  | PgDn| | TRN |  1  |  2  |  3  | TRN | TRN  |
-        // |  LGUI | TRN | SPACE |                |  RET | TRN | TRN |
+        // ─────────────────────────────── NAVNUM ───────────────────────────────
+        // ┌─────┬─────┬─────┬─────┬─────┬─────┐    ┌─────┬─────┬─────┬─────┬─────┬─────┐
+        // │     │  1  │  2  │  3  │  4  │  5  │    │  6  │  7  │  8  │  9  │  0  │ DEL │
+        // │CAPS │     │     │  ↑  │BTAB │     │    │     │HOME │PgUp │PgDn │ END │     │
+        // │     │     │  ←  │  ↓  │  →  │     │    │     │     │     │     │     │     │
+        // └─────┴─────┴─────┼─────┼─────┼─────┤    ├─────┼─────┼─────┼─────┴─────┴─────┘
+        //                   │     │     │ SPC │    │ ENT │     │     │
+        //                   └─────┴─────┴─────┘    └─────┴─────┴─────┘
         NAV {
             display-name = "NavNum";
-
             bindings = <
-                &trans       &kp N1       &kp N2       &kp N3       &kp N4       &kp N5            &kp N6       &kp N7       &kp N8       &kp N9       &kp N0       &kp DELETE
-                &caps_word   &trans       &trans       &kp UP_ARROW &browsertab  &kp PAGE_UP       &kp N0       &kp N4       &kp N5       &kp N6       &trans       &trans
-                &trans       &trans       &kp LEFT     &kp DOWN     &kp RIGHT_ARROW &kp PAGE_DOWN  &trans       &kp N1       &kp N2       &kp N3       &trans       &trans
-                                                       &kp LGUI     &trans       &kp SPACE        &kp RET      &trans       &trans
+&trans       &kp N1       &kp N2       &kp N3       &kp N4       &kp N5           &kp N6       &kp N7       &kp N8       &kp N9       &kp N0       &kp DEL
+CAPS         &trans       &trans       &kp UP       BTAB         &trans           &trans       &kp HOME     &kp PG_UP    &kp PG_DN    &kp END      &trans
+&trans       &trans       &kp LEFT     &kp DOWN     &kp RIGHT    &trans           &trans       &trans       &trans       &trans       &trans       &trans
+                                       &trans       &trans       &kp SPACE        &kp RET      &trans       &trans
             >;
         };
 
-        // ─────────────────────────── Symbols ───────────────────────────
-        // | TRNS |  !  |  @  |  #  |  $  |  %  | |  ^  |  &  |  *  |  (  |  )  | TRNS |
-        // | TRNS | TRN | TRN | TRN | TRN |  `  | |  -  |  =  |  [  |  ]  |  \  | TRNS |
-        // | TRNS | TRN | TRN | TRN | TRN |  ~  | |  _  |  +  |  {  |  }  |  |  | TRNS |
-        // |  LGUI | TRN | SPACE |                |  RET | TRN | TRN |
+        // ─────────────────────────────── SYMBOLS ──────────────────────────────
+        // ┌─────┬─────┬─────┬─────┬─────┬─────┐    ┌─────┬─────┬─────┬─────┬─────┬─────┐
+        // │     │  !  │  @  │  #  │  $  │  %  │    │  ^  │  &  │  *  │  |  │  \  │     │
+        // │     │  `  │  ~  │  _  │  +  │  =  │    │  -  │  (  │  )  │  [  │  ]  │  "  │
+        // │     │     │     │     │     │  /  │    │  ?  │  {  │  }  │  <  │  >  │     │
+        // └─────┴─────┴─────┼─────┼─────┼─────┤    ├─────┼─────┼─────┼─────┴─────┴─────┘
+        //                   │     │     │ SPC │    │ ENT │     │     │
+        //                   └─────┴─────┴─────┘    └─────┴─────┴─────┘
         SYM {
             display-name = "Symbols";
-
             bindings = <
-                &trans       &kp EXCL     &kp AT       &kp HASH     &kp DLLR     &kp PRCNT         &kp CARET    &kp AMPS     &kp ASTRK    &kp LEFT_PARENTHESIS &kp RPAR  &trans
-                &trans       &trans       &trans       &trans       &trans       &kp GRAVE         &kp MINUS    &kp EQUAL    &kp LBKT     &kp RBKT               &kp BSLH  &trans
-                &trans       &trans       &trans       &trans       &trans       &kp TILDE         &kp UNDER    &kp PLUS     &kp LBRC     &kp RBRC               &kp PIPE  &trans
-                                                       &kp LGUI     &trans       &kp SPACE        &kp RET      &trans       &trans
+&trans       &kp EXCL     &kp AT       &kp HASH     &kp DLLR     &kp PRCNT        &kp CARET    &kp AMPS     &kp ASTRK    &kp PIPE     &kp BSLH     &trans
+&trans       &kp GRAVE    &kp TILDE    &kp UNDER    &kp PLUS     &kp EQUAL        &kp MINUS    &kp LPAR     &kp RPAR     &kp LBKT     &kp RBKT     &kp DQT
+&trans       &trans       &trans       &trans       &trans       &kp FSLH         &kp QMARK    &kp LBRC     &kp RBRC     &kp LT       &kp GT       &trans
+                                       &trans       &trans       &kp SPACE        &kp RET      &trans       &trans
             >;
         };
 
-        // ─────────────────────────── System ────────────────────────────
-        // | TRNS | F1  | F2  | F3  | F4  | F5  | | F6  | F7  | F8  | F9  | F10 | TRNS |
-        // | TRNS | F11 | F12 | TRN | TRN | UNLK| | TRN | TRN |  ↑  | TRN | TRN | BOOT  |
-        // | TRNS | BT0 | BT1 | BT2 | BT- | BT-A| | TRN |  ←  |  ↓  |  → | TRN | TRN  | 
-        // | TRNS | TRN | TRN |                    | TRN | TRN | TRN |
+        // ─────────────────────────────── SYSTEM ───────────────────────────────
+        // ┌─────┬─────┬─────┬─────┬─────┬─────┐    ┌─────┬─────┬─────┬─────┬─────┬─────┐
+        // │     │ F1  │ F2  │ F3  │ F4  │ F5  │    │ F6  │ F7  │ F8  │ F9  │ F10 │     │
+        // │     │ F11 │ F12 │     │     │UNLK │    │     │     │     │     │     │BOOT │
+        // │     │ BT0 │ BT1 │ BT2 │ BT- │BT-A │    │     │     │     │     │     │     │
+        // └─────┴─────┴─────┼─────┼─────┼─────┤    ├─────┼─────┼─────┼─────┴─────┴─────┘
+        //                   │     │     │     │    │     │     │     │
+        //                   └─────┴─────┴─────┘    └─────┴─────┴─────┘
         ADJ {
             display-name = "System";
-
             bindings = <
-                &trans       &kp F1       &kp F2       &kp F3       &kp F4       &kp F5            &kp F6       &kp F7       &kp F8       &kp F9       &kp F10      &trans
-                &trans       &kp F11      &kp F12      &trans       &trans       &studio_unlock    &trans       &trans       &kp UP_ARROW &trans       &trans       &bootloader
-                &trans       &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_CLR   &bt BT_CLR_ALL    &trans       &kp LEFT_ARROW &kp DOWN_ARROW &kp RIGHT_ARROW &trans
-                &trans       &trans       &trans                           &trans                &trans       &trans
+&trans       &kp F1       &kp F2       &kp F3       &kp F4       &kp F5           &kp F6       &kp F7       &kp F8       &kp F9       &kp F10      &trans
+&trans       &kp F11      &kp F12      &trans       &trans       SUNL             &trans       &trans       &trans       &trans       &trans       BOOT
+&trans       BT0          BT1          BT2          BTC          BTCA             &trans       &trans       &trans       &trans       &trans       &trans
+                                       &trans       &trans       &trans           &trans       &trans       &trans
             >;
         };
     };
 
     conditional_layers {
         compatible = "zmk,conditional-layers";
-
         l3 {
-            if-layers = <1 2>;
-            then-layer = <3>;
+            if-layers = <NAV SYM>;
+            then-layer = <ADJ>;
         };
     };
 };
